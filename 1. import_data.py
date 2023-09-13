@@ -29,3 +29,5 @@ def import_data(data):
 
 #test
 import_data("/home/fmahnken/PycharmProjects/data/2023-08-11")
+
+print("Hi from Dane")
