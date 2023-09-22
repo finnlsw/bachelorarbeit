@@ -10,26 +10,16 @@ Original file is located at
 # Commented out IPython magic to ensure Python compatibility.
 #import important packages
 # %matplotlib inline
-from google.colab import drive
-drive.mount('/content/drive')
 import numpy as np
 from astropy.io import fits
-from astropy.stats import sigma_clipped_stats
 import matplotlib.pyplot as plt
 import glob
 import os
-from astropy import visualization as aviz
-from astropy.nddata.blocks import block_reduce
-from astropy.nddata.utils import Cutout2D
-from astropy import units as u
-from pathlib import Path
-from astropy.nddata import CCDData
-from astropy.visualization import hist
-import shutil
-from itertools import chain
+from plotting import show_image
+from saving import save_image
 
 #change path here
-curpath =  "/content/drive/MyDrive/ColabNotebooks/data/2023-09-04"
+curpath =  "/home/finn/PycharmProjects/data/2023-08-11"
 
 # 0. define Important functions
 def loadImages(folder_name):
@@ -38,7 +28,7 @@ def loadImages(folder_name):
     num_files = len(image_list)
     print('Found %d files in %s' % (num_files, folder_name))
     target_size = 2048
-    images = np.zeros((target_size, target_size, num_files),dtype=np.int16) #int16 because orignial files are in int16
+    images = np.zeros((target_size, target_size, num_files),dtype=np.float32) #float32 because orignial files are in int16
     # use binning to compress larger images (e.g. 4096) to 2048
     for i in range(num_files):
         with fits.open(image_list[i]) as hdul:
@@ -55,54 +45,9 @@ def loadImages(folder_name):
 #flatImages = loadImages('FLAT') # Example usage
 
 
-def show_image(image,
-               percl=99, percu=None, is_mask=False,
-               figsize=(10, 10),
-               cmap='gray', log=False, clip=True,
-               show_colorbar=True, show_ticks=True,
-               fig=None, ax=None, input_ratio=None):
-    if percu is None: # determine percentile range of the stretch
-        percu = percl
-        percl = 100 - percl
-    if (fig is None and ax is not None) or (fig is not None and ax is None):
-        raise ValueError('Must provide both "fig" and "ax" '
-                         'if you provide one of them')
-    elif fig is None and ax is None:
-        if figsize is not None:
-            image_aspect_ratio = image.shape[0] / image.shape[1]
-            figsize = (max(figsize) * image_aspect_ratio, max(figsize))
-        fig, ax = plt.subplots(1, 1, figsize=figsize)
-    fig_size_pix = fig.get_size_inches() * fig.dpi
-    ratio = (image.shape // fig_size_pix).max()
-    if ratio < 1:
-        ratio = 1
-    ratio = input_ratio or ratio
-    reduced_data = block_reduce(image, ratio)
-    if not is_mask:
-         reduced_data = reduced_data / ratio**2
-    extent = [0, image.shape[1], 0, image.shape[0]]
-    if log:
-        stretch = aviz.LogStretch()
-    else:
-        stretch = aviz.LinearStretch()
-    norm = aviz.ImageNormalize(reduced_data,
-                               interval=aviz.AsymmetricPercentileInterval(percl, percu),
-                               stretch=stretch, clip=clip)
-    if is_mask:
-        reduced_data = reduced_data > 0
-        scale_args = dict(vmin=0, vmax=1)
-    else:
-        scale_args = dict(norm=norm)
-    im = ax.imshow(reduced_data, origin='lower',
-                   cmap=cmap, extent=extent, aspect='equal', **scale_args)
-    if show_colorbar:
-        fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
-    if not show_ticks:
-        ax.tick_params(labelbottom=False, labelleft=False, labelright=False, labeltop=False)
-
 # 1. Bias
 biasImages=loadImages('BIAS')
-masterBias = np.median(biasImages, axis=2).astype(np.int16)
+masterBias = np.median(biasImages, axis=2).astype(np.float32)
 
 #2. Dark
 darkImages = loadImages('DARK')
@@ -163,12 +108,14 @@ for filter_value, master_flat in masterFlatFrames.items():
 for exptime, master_dark in masterDarkFrames.items():
     print(f"darks Exposure Time: {exptime}")
 
+
 #4. Image correction
 # Create a list for light images and header as tuple
 lightPath = os.path.join(curpath, 'LIGHT')
 lightFiles = [file for file in os.listdir(lightPath) if file.endswith('.fit') or file.endswith('.fits')]
 lightsCor= []
 lightsRaw =[]
+headerList =[]
 
 for fits_file in lightFiles:
     fits_path = os.path.join(lightPath, fits_file)
@@ -187,20 +134,22 @@ for fits_file in lightFiles:
     masterFlat = masterFlatFrames[filter_value]
     corrected_image = (image - masterBias - masterDarkFrame * correction_factor) / masterFlat
     #Store image and its header in new list:
-    cor_tuple=(corrected_image,hdul[0].header)
-    raw_tuple=(image,hdul[0].header)
-    lightsCor.append(cor_tuple) #[objectnumber][0:image, 1:header] so header from 3. pic: lightsCor[2][1]
-    lightsRaw.append(raw_tuple)
+    lightsCor.append(corrected_image)
+    lightsRaw.append(image)
+    headerList.append(header)
     hdul.close()
 
 print(len(lightsCor),len(lightsRaw))
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 10))
-show_image(lightsRaw[0][0], ax=ax1, fig=fig)
+show_image(lightsRaw[0], ax=ax1, fig=fig)
 ax1.set_title('Raw Image')
-show_image(lightsCor[0][0], ax=ax2, fig=fig)
+show_image(lightsCor[0], ax=ax2, fig=fig)
 ax2.set_title('Corrected Image')
 plt.show()
 
+output_path = os.path.join(curpath, "lightCor")
+save_image(output_path,lightsCor, headerList)
+'''
 # Saving the files with filter value in the header and title
 output_path = os.path.join(curpath, "lightCor")
 #shutil.rmtree(output_path)  # Remove if already exists
@@ -208,7 +157,7 @@ if not os.path.exists(output_path):
     os.makedirs(output_path)
 num_saved_files = 0
 for i in range (len(lightsCor)):
-    imageCor=lightsCor[i][0].astype(np.int16)
+    imageCor=lightsCor[i][0].astype(np.float32)
     headerCor=lightsCor[i][1]
     filename = f"lightCor_{headerCor['OBJECT']}_{headerCor['FILTER']}_{headerCor['EXPTIME']}s_{i}.fit"
     fits_path = os.path.join(output_path, filename)
@@ -221,4 +170,4 @@ for i in range (len(lightsCor)):
        print(num_saved_files)
 
 print(f"Number of files saved: {num_saved_files}")
-
+'''

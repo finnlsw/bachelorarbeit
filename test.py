@@ -1,6 +1,12 @@
-import matplotlib.pyplot as plt
 
 
+
+
+
+
+
+
+'''
 def test(add):
     plt.savefig(f"date{add}")
 
@@ -10,3 +16,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+'''
