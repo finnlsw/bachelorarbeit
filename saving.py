@@ -6,6 +6,10 @@ from astropy.io import fits
 def save_image(output_path, image_list, header_list):
     if not os.path.exists(output_path):
         os.makedirs(output_path)
+    if not isinstance(image_list, list): 
+        image_list = [image_list]
+    if not isinstance(header_list, list):
+        header_list = [header_list]
     for i in range(len(image_list)):
         header = header_list[i]
         image = image_list[i].astype(np.float32)
