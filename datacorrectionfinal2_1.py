@@ -7,8 +7,9 @@ import os
 from plotting import show_image
 from saving import save_image
 
-#change path here
-curpath =  "/home/finn/PycharmProjects/data/2023-08-11"
+#change path here#
+curpath = "/home/fmahnken/PycharmProjects/data/2023-08-11"
+#curpath =  "/home/finn/PycharmProjects/data/2023-08-11"
 
 # 0. define Important functions
 def loadImages(folder_name):

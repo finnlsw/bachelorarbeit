@@ -10,8 +10,9 @@ from astropy.nddata.blocks import block_reduce
 from plotting import show_image
 from saving import save_image
 
+base_path = "/home/finn/visual_Studio_Code/data/2023-09-11/" ####change here for different pc
+input_path = os.path.join(base_path,"lightCor")
 
-input_path = "/home/finn/visual_Studio_Code/data/2023-09-11/lightCor"
 input_files = glob.glob(os.path.join(input_path, 'lightCor_HIP100587_focused_I (Johnson)_*.fit'))
 input_files2 = glob.glob(os.path.join(input_path, 'lightCor_HIP100587_focused_H-alpha_*.fit'))
 input_files3 = glob.glob(os.path.join(input_path, 'lightCor_HIP100587_focused_R Johnson_*.fit'))
