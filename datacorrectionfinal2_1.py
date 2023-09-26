@@ -8,7 +8,7 @@ from plotting import show_image
 from saving import save_image
 
 #change path here#
-curpath = "/home/fmahnken/PycharmProjects/data/2023-08-11"
+curpath = "/home/finn/visual_Studio_Code/data/2023-09-25"
 #curpath =  "/home/finn/PycharmProjects/data/2023-08-11"
 
 # 0. define Important functions
@@ -111,10 +111,21 @@ for fits_file in lightFiles:
     fits_path = os.path.join(lightPath, fits_file)
     hdul = fits.open(fits_path)
     header = hdul[0].header
-    image = hdul[0].data
+    #bin image if neccesary:
+    naxis1 = hdul[0].header.get('NAXIS1', -1) #get size information from the header
+    naxis2 = hdul[0].header.get('NAXIS2', -1)
+    target_size=2048
+    if naxis1 == target_size and naxis2 == target_size:
+        image = hdul[0].data
+    elif naxis1 > 0 and naxis2 > 0:
+        binning_factor = max(naxis1 // target_size, naxis2 // target_size)
+        binned_data = hdul[0].data.reshape(naxis2 // binning_factor, binning_factor, naxis1 // binning_factor, binning_factor).mean(1).mean(2)
+        image = binned_data
+
+    #image = hdul[0].data
     exptime = header['EXPTIME']
     filter_value = header['FILTER']
-
+    
     # Perform image corrections and store the corrected image
     nearest_exptime_master_dark = min(masterDarkFrames.keys(), key=lambda x: abs(x - exptime))
     masterDarkFrame = masterDarkFrames[nearest_exptime_master_dark]
