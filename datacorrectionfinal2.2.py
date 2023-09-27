@@ -8,8 +8,8 @@ from plotting import show_image
 from saving import save_image
 
 #change path here#
-curpath = "/home/finn/visual_Studio_Code/data/2023-09-25"
-#curpath =  "/home/finn/PycharmProjects/data/2023-08-11"
+#curpath = "/home/finn/visual_Studio_Code/data/2023-09-25"
+curpath =  "/home/fmahnken/PycharmProjects/data/2023-09-25"
 
 # 0. define Important functions
 def loadImages(folder_name):
@@ -148,31 +148,20 @@ for i, fits_file in enumerate(lightFiles):
     hdul.close()
     if i%50 ==  0:
         print(i,"files saved")
-
+print("finished with", i+1, "files saved")
+#plot some of the results
 corrected_files = glob.glob(os.path.join(output_path, '*.fit')) + glob.glob(os.path.join(output_path, '*.fits'))
-# Display the first raw and first corrected image
-if len(lightFiles) > 0:
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 10))
-    
-    # Read the first raw image
-    raw_image = fits.getdata(os.path.join(lightPath, lightFiles[0]))
-    show_image(raw_image, ax=ax1, fig=fig)
-    ax1.set_title('Raw Image')
-
-    # Check if there are any corrected files and display the first one
-    if len(corrected_files) > 0:
-        corrected_image = fits.getdata(corrected_files[0])
-        show_image(corrected_image, ax=ax2, fig=fig)
-        ax2.set_title('Corrected Image')
-    else:
-        ax2.set_title('No Corrected Image')
-
-    plt.show()
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 10))
+corrected_image1 = fits.getdata(corrected_files[0])
+show_image(corrected_image1, ax=ax1, fig=fig)
+ax1.set_title('corrected_image1')
+corrected_image10 = fits.getdata(corrected_files[10])
+show_image(corrected_image10, ax=ax2, fig=fig)
+ax2.set_title('corrected_image10')
+plt.show()
 
 
-
-
-
+# XXXXXXXXXXXXXX waere cool wenn ich das wieder mit roh und korrigierem bild hinkriege.
 '''
 print(len(lightsCor),len(lightsRaw))
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 10))
