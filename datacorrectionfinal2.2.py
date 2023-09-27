@@ -8,7 +8,7 @@ from plotting import show_image
 from saving import save_image
 
 #change path here#
-curpath = "/home/finn/visual_Studio_Code/data/2023-09-26"
+curpath = "/home/finn/visual_Studio_Code/data/2023-09-25"
 #curpath =  "/home/finn/PycharmProjects/data/2023-08-11"
 
 # 0. define Important functions
@@ -97,23 +97,30 @@ for filter_value, master_flat in masterFlatFrames.items():
     print(f"flats Filter: {filter_value}")
 for exptime, master_dark in masterDarkFrames.items():
     print(f"darks Exposure Time: {exptime}")
-
+first_filter = next(iter(masterFlatFrames)) #get first flat filter from library
+first_dark= next(iter(masterDarkFrames)) #get first dark exptime from library
+fig, (ax1,ax2) = plt.subplots(1,2,figsize=(20,10))
+show_image(masterFlatFrames[first_filter], ax=ax1, fig=fig)
+show_image(masterDarkFrames[first_dark], ax=ax2, fig=fig)
+plt.show()
 
 #4. Image correction
 # Create a list for light images and header as tuple
 lightPath = os.path.join(curpath, 'LIGHT')
 lightFiles = [file for file in os.listdir(lightPath) if file.endswith('.fit') or file.endswith('.fits')]
-lightsCor= []
-lightsRaw =[]
-headerList =[]
+#lightsCor= []
+#lightsRaw =[]
+#headerList =[]
 
-for fits_file in lightFiles:
+output_path = os.path.join(curpath, "lightCor")
+
+for i, fits_file in enumerate(lightFiles):
     fits_path = os.path.join(lightPath, fits_file)
     hdul = fits.open(fits_path)
     header = hdul[0].header
     #bin image if neccesary:
-    naxis1 = hdul[0].header.get('NAXIS1', -1) #get size information from the header
-    naxis2 = hdul[0].header.get('NAXIS2', -1)
+    naxis1 = header.get('NAXIS1', -1) #get size information from the header
+    naxis2 = header.get('NAXIS2', -1)
     target_size=2048
     if naxis1 == target_size and naxis2 == target_size:
         image = hdul[0].data
@@ -125,7 +132,6 @@ for fits_file in lightFiles:
     #image = hdul[0].data
     exptime = header['EXPTIME']
     filter_value = header['FILTER']
-    
     # Perform image corrections and store the corrected image
     nearest_exptime_master_dark = min(masterDarkFrames.keys(), key=lambda x: abs(x - exptime))
     masterDarkFrame = masterDarkFrames[nearest_exptime_master_dark]
@@ -135,11 +141,39 @@ for fits_file in lightFiles:
     masterFlat = masterFlatFrames[filter_value]
     corrected_image = (image - masterBias - masterDarkFrame * correction_factor) / masterFlat
     #Store image and its header in new list:
-    lightsCor.append(corrected_image)
-    lightsRaw.append(image)
-    headerList.append(header)
+    #lightsCor.append(corrected_image)
+    #lightsRaw.append(image)
+    #headerList.append(header)
+    save_image(output_path,corrected_image,header)
     hdul.close()
+    if i%50 ==  0:
+        print(i,"files saved")
 
+corrected_files = glob.glob(os.path.join(output_path, '*.fit')) + glob.glob(os.path.join(output_path, '*.fits'))
+# Display the first raw and first corrected image
+if len(lightFiles) > 0:
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 10))
+    
+    # Read the first raw image
+    raw_image = fits.getdata(os.path.join(lightPath, lightFiles[0]))
+    show_image(raw_image, ax=ax1, fig=fig)
+    ax1.set_title('Raw Image')
+
+    # Check if there are any corrected files and display the first one
+    if len(corrected_files) > 0:
+        corrected_image = fits.getdata(corrected_files[0])
+        show_image(corrected_image, ax=ax2, fig=fig)
+        ax2.set_title('Corrected Image')
+    else:
+        ax2.set_title('No Corrected Image')
+
+    plt.show()
+
+
+
+
+
+'''
 print(len(lightsCor),len(lightsRaw))
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 10))
 show_image(lightsRaw[0], ax=ax1, fig=fig)
@@ -150,4 +184,4 @@ plt.show()
 
 output_path = os.path.join(curpath, "lightCor")
 save_image(output_path,lightsCor, headerList)
-
+'''
