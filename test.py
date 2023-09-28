@@ -5,10 +5,6 @@ from saving import save_image
 from matplotlib import pyplot as plt
 
 
-for i in range (int(200/20)):
-
-    index = i*20
-    print(index)
 '''
 Path = os.path.join('/home/finn/visual_Studio_Code/data/2023-09-11/lightCor/lightCor_HIP100587_focused_B (Johnson)_1.0s_6.fit')
 hdul = fits.open(Path)
@@ -19,32 +15,29 @@ header=hdul[0].header
 show_image(image)
 plt.show()
 '''
-'''
-folder_path = '/home/finn/visual_Studio_Code/data/2023-09-11/lightCor/'
+
+
+folder_path = '/home/finn/visual_Studio_Code/data/2023-09-25/stacked/'
 
 # Get a list of FITS files in the folder
 fits_files = [file for file in os.listdir(folder_path) if file.endswith('.fit')]
 imagelist=[]
+
 # Plot the Raw and Corrected images in the grid
 for i, fits_file in enumerate(fits_files):
-    # Determine the subplot position (row and column)
-    
-    # Construct the full path to the FITS file
     fits_path = os.path.join(folder_path, fits_file)
-    
-    # Open the FITS file and read the image data
     hdul = fits.open(fits_path)
     image = hdul[0].data
     imagelist.append(image)
-    # Plot the image using show_image
 
-for i in range(2):
+
+for i in range (1,len(imagelist),2):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 10))
-    show_image(imagelist[i], ax=ax1, fig=fig)
-    ax1.set_title('Raw Image')
-    show_image(imagelist[i+1], ax=ax2, fig=fig)
-    ax2.set_title('Corrected Image')
-'''
+    show_image(imagelist[i-1], ax=ax1, fig=fig)
+    ax1.set_title(f'image {i-1} out of {len(imagelist)}')
+    show_image(imagelist[i], ax=ax2, fig=fig)
+    ax2.set_title(f'image {i} out of {len(imagelist)}')
+    plt.show()
 
 
 '''

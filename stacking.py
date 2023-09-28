@@ -11,8 +11,7 @@ def stack_images(inputPath, exptime):
         hdul = fits.open(file)
         header = hdul[0].header
         image = hdul[0].data
-        #if header['EXPTIME'] == exptime:
-        if abs(header['EXPTIME'] - exptime) < 0.09:
+        if header['EXPTIME'] == exptime:
             imageList.append(image)
             headerList.append(header)
         hdul.close()
@@ -25,7 +24,7 @@ def stack_images(inputPath, exptime):
     warp_mode = cv2.MOTION_TRANSLATION
     warp_matrix = np.eye(2, 3, dtype=np.float32)
     criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 1000,
-                1e-5)  # 1000: max number of iterations, 1: epsilon(desired accuracy)
+                1e-5)  # 1000: max number of iterations, 1e-5: epsilon(desired accuracy)
     for i, image in enumerate(imageList):
         if i == middle_index:
             continue
@@ -34,7 +33,7 @@ def stack_images(inputPath, exptime):
         aligned_image = cv2.warpAffine(image, warp_matrix, reference_image.shape[::-1],
                                        flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP)
         aligned_images.append(aligned_image)
-        if i % 10 == 0:
+        if i % 20 == 0:
             print('number of processed images:', i)
     final_stacked_image = np.median(aligned_images, axis=0)
     return final_stacked_image, headerList[0]
