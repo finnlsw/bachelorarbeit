@@ -4,12 +4,13 @@ from astropy.io import fits
 import matplotlib.pyplot as plt
 import glob
 import os
+import shutil
 from plotting import show_image
 from saving import save_image
 
 #change path here#
-#curpath = "/home/finn/visual_Studio_Code/data/2023-09-25"
-curpath =  "/home/fmahnken/PycharmProjects/data/2023-09-25"
+curpath = "/home/finn/visual_Studio_Code/data/2023-09-25"
+#curpath =  "/home/fmahnken/PycharmProjects/data/2023-09-25"
 
 # 0. define Important functions
 def loadImages(folder_name):
@@ -108,11 +109,9 @@ plt.show()
 # Create a list for light images and header as tuple
 lightPath = os.path.join(curpath, 'LIGHT')
 lightFiles = [file for file in os.listdir(lightPath) if file.endswith('.fit') or file.endswith('.fits')]
-#lightsCor= []
-#lightsRaw =[]
-#headerList =[]
-
 output_path = os.path.join(curpath, "lightCor")
+if os.path.exists(output_path):
+    shutil.rmtree(output_path) 
 
 for i, fits_file in enumerate(lightFiles):
     fits_path = os.path.join(lightPath, fits_file)
