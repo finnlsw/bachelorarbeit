@@ -13,14 +13,15 @@ def save_image(output_path, image_list, header_list, custom_text=None):
     for i in range(len(image_list)):
         header = header_list[i]
         image = image_list[i].astype(np.float32)
-        
+        target = header['OBJECT']
+        target = target.replace('/', '_')
         # Construct the filename with custom_text and suffix
         suffix = 0
         while True:
             if custom_text:
-                filename = f"lightCor_{header['OBJECT']}_{header['FILTER']}_{header['EXPTIME']}s_{custom_text}_{suffix}.fit"
+                filename = f"lightCor_{target}_{header['FILTER']}_{header['EXPTIME']}s_{custom_text}_{suffix}.fit"
             else:
-                filename = f"lightCor_{header['OBJECT']}_{header['FILTER']}_{header['EXPTIME']}s_{suffix}.fit"
+                filename = f"lightCor_{target}_{header['FILTER']}_{header['EXPTIME']}s_{suffix}.fit"
             
             fits_path = os.path.join(output_path, filename)
             if not os.path.exists(fits_path):
