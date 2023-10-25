@@ -9,15 +9,15 @@ from stacking import stack_images
 from datetime import datetime
 
 
-base_path = "/home/finn/visual_Studio_Code/data/2023-09-11/" ####change here for different pc
+base_path = "/home/finn/visual_Studio_Code/data/2023-09-26/" ####change here for different pc
 #base_path = "/home/fmahnken/PycharmProjects/data/2023-09-25/"
 input_path = os.path.join(base_path,"lightCor")
 output_path= base_path+"stacked"
 
 
-input_files = glob.glob(os.path.join(input_path, 'lightCor_HIP100587_defocused_R (Johnson)_*.fit')) 
+input_files = glob.glob(os.path.join(input_path, 'lightCor_HIP100587_mesh_series_R (Johnson)_5.0s_*.fit')) 
 print('Number of input files:', len(input_files))
-exptimeList=[0.5]
+exptimeList=[5.0]
 batch_size = 10
 text= f"{batch_size}_images_stacked" 
 

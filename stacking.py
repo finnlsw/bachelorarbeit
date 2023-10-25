@@ -33,8 +33,6 @@ def stack_images(inputPath, exptime):
         aligned_image = cv2.warpAffine(image, warp_matrix, reference_image.shape[::-1],
                                        flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP)
         aligned_images.append(aligned_image)
-        if i % 20 == 0:
-            print('number of processed images:', i)
     final_stacked_image = np.median(aligned_images, axis=0)
     return final_stacked_image, headerList[0]
 

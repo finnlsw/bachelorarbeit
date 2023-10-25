@@ -5,18 +5,39 @@ from saving import save_image
 from matplotlib import pyplot as plt
 
 
-'''
-Path = os.path.join('/home/finn/visual_Studio_Code/data/2023-09-11/lightCor/lightCor_HIP100587_focused_B (Johnson)_1.0s_6.fit')
+
+Path = os.path.join('/home/finn/visual_Studio_Code/data/2023-10-01/stacked/lightCor_HIP75458_mesh_R (Johnson)_15.0s_mesh_10_images_stacked_0.fit')
 hdul = fits.open(Path)
 image=hdul[0].data
 header=hdul[0].header
+date = hdul[0].header["DATE-OBS"][:10]
 
-#testpath= '/home/finn/visual_Studio_Code/data/2023-09-11/testtest'
-show_image(image)
+'''
+fig,ax = plt.subplots(1,1,figsize=(10,10))
+ax.set_title(f"{date}_{os.path.splitext(Path)[0][63:]}")
+show_image(image, fig=fig, ax=ax)
 plt.show()
 '''
 
 
+clicked_positions = []
+
+def onclick(event):
+    if event.button == 1:  # Check if the left mouse button is clicked (button value 1)
+        x = int(event.xdata)
+        y = int(event.ydata)
+        clicked_positions.append((x, y))
+        print(f"Clicked at pixel position: x={x}, y={y}")
+
+fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+ax.set_title(f"{date}_{os.path.splitext(Path)[0][63:]}")
+show_image(image, fig=fig, ax=ax)
+fig.canvas.mpl_connect('button_press_event', onclick)  # Connect the onclick function to mouse click events
+
+plt.show()
+print("bright_positions=", clicked_positions[1:]) #remove first entry (zooming)
+
+'''
 folder_path = '/home/finn/visual_Studio_Code/data/2023-09-25/stacked/'
 
 # Get a list of FITS files in the folder
@@ -39,7 +60,7 @@ for i in range (1,len(imagelist),2):
     ax2.set_title(f'image {i} out of {len(imagelist)}')
     plt.show()
 
-
+'''
 '''
 folder_path = '/home/finn/visual_Studio_Code/data/2023-09-11/lightCor/'
 
