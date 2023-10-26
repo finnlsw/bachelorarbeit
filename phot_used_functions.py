@@ -2,6 +2,11 @@ import numpy as np
 from scipy.spatial.distance import cdist
 from scipy import signal
 import cv2
+from astropy.stats import sigma_clipped_stats, mad_std
+from astropy.table import Table
+from photutils import CircularAperture, CircularAnnulus, aperture_photometry, ApertureStats
+
+
 
 def filter_sources(positions, sources, min_separation=50.0, min_edge_distance=50.0):
     distances = cdist(positions, positions)
@@ -58,7 +63,8 @@ def determine_distance(data, positions,max_value=30):
 
     return distance_list, valid_positions
 
-def determine_shift(imageList, referenceImage = None, middle_index = None):
+
+def determine_shift(imageList, referenceImage = None, wanted_index = None):
     print('Number of images to process:', len(imageList))
     shifts = []
     warp_mode = cv2.MOTION_TRANSLATION
@@ -67,25 +73,87 @@ def determine_shift(imageList, referenceImage = None, middle_index = None):
     criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 1000, 1e-5) # default was 1000, 1e-5
 
     if referenceImage is None:
-        middle_index = len(imageList)//2
-        print('middle index is: ',middle_index)
-        reference_image = imageList[middle_index].astype(np.float32)
+        if wanted_index is None:
+          wanted_index = len(imageList)//2
+        print('we use image: ',wanted_index,"from given list as reference image")
+        reference_image = imageList[wanted_index].astype(np.float32)
     else:
         reference_image = referenceImage.astype(np.float32)
     
     for i, image in enumerate(imageList):
-      if middle_index is None: 
+      if i == wanted_index: 
+        shifts.append((0,0)) #no shift for the reference image relativ to itself
+      else:
         image = image.astype(np.float32)
         _, warp_matrix = cv2.findTransformECC(reference_image, image, warp_matrix, warp_mode, criteria)
         shift_x, shift_y = warp_matrix[0, 2], warp_matrix[1, 2]
         shifts.append((shift_x, shift_y))
-      else:
-        if i == middle_index:
-            shifts.append((0, 0))  # No shift for the reference image
-        else:
-          image = image.astype(np.float32)
-          _, warp_matrix = cv2.findTransformECC(reference_image, image, warp_matrix, warp_mode, criteria)
-          shift_x, shift_y = warp_matrix[0, 2], warp_matrix[1, 2]
-          shifts.append((shift_x, shift_y))
 
     return shifts
+
+
+# function to determine individual radii
+def determine_fwhm(data, positions,max_value=20):
+    valid_positions = []
+    fwhm = []
+    x_values = [int(value[0]) for value in positions]
+    y_values = [int(value[1]) for value in positions]
+    for i in range(len(positions)):
+        size = 30
+        if x_values[i] < size or x_values[i] >= data.shape[1] - size:
+            row_values = data[y_values[i], x_values[i] - x_values[i]: x_values[i] + x_values[i]]
+        else:
+            row_values = data[y_values[i], x_values[i] - size: x_values[i] + size]
+        x_coordinates = range(len(row_values))
+        row_values_bkg = row_values + np.median(row_values)  # add median as background
+        half_max = (np.max(row_values_bkg) / 2)
+        above_half_max_indices = np.where(row_values > half_max)[0]
+        lower_index = above_half_max_indices[0]
+        upper_index = above_half_max_indices[-1]
+        x_lower = x_coordinates[lower_index]
+        x_upper = x_coordinates[upper_index]
+        calculated_fwhm = x_upper - x_lower
+        if calculated_fwhm <= max_value and calculated_fwhm > 0:
+            fwhm.append(calculated_fwhm)
+            valid_positions.append(positions[i])
+    return valid_positions, fwhm
+
+
+
+def determine_magnitudes(image, positions, star_radius, exptime):
+  #for bright star
+  if len(positions) == 1:
+    aperture = CircularAperture(positions, r=star_radius)
+    annulus_aperture = CircularAnnulus(positions, r_in=star_radius+15, r_out=star_radius+45)
+    aperture.plot(color='red', lw=1.0, alpha=0.5);
+    annulus_aperture.plot(color="blue", lw=1.0, alpha=0.5);
+    phot_table = aperture_photometry(image, aperture, method='subpixel', subpixels=5)
+    aperstats = ApertureStats(image, annulus_aperture)
+    bkg = aperstats.median
+    aperture_area = aperture.area_overlap(image)
+    total_bkg = bkg * aperture_area
+    phot_table['total_bkg'] = total_bkg
+    for line in phot_table:
+      magnitudes = - (2.5*np.log10(abs(line[3]-line[4])/exptime)) #here single value
+    
+  else:
+    apertures = [CircularAperture(position, r=star_radius) for position in positions]
+    annulus_apertures = [CircularAnnulus(position,r_in=star_radius+5, r_out=star_radius+15) for position in shifted_positions]
+    for aperture in apertures:
+        aperture.plot(color="red", lw=1.0, alpha=0.5)
+    for anulus in annulus_apertures:
+        anulus.plot(color="blue", lw=1.0, alpha=0.5)
+    phot_table_faint = Table(names=('id', 'xcenter', 'ycenter', 'aperture_sum', 'total_bkg'), dtype=('int', 'float', 'float', 'float', 'float'))
+    for j in range(len(apertures)):
+        aperstats = ApertureStats(image, annulus_apertures[j])
+        bkg = aperstats.median
+        aperture_area = apertures[j].area_overlap(image)
+        total_bkg = bkg * aperture_area
+        phot_table = aperture_photometry(image, apertures[j])
+        phot_table['total_bkg'] = total_bkg
+        phot_table_faint.add_row([j, phot_table['xcenter'][0], phot_table['ycenter'][0], phot_table['aperture_sum'][0], phot_table['total_bkg'][0]])
+    magnitudes=[]
+    for row in phot_table_faint:
+        magnitude =  - (2.5 * np.log10(abs(row['aperture_sum'] - row['total_bkg']) / exptime))
+        magnitudes.append(magnitude) #magnitudes here list
+  return magnitudes 
