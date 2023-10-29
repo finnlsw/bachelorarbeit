@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 
 
 
-Path = os.path.join('/home/finn/visual_Studio_Code/data/2023-10-01/stacked/lightCor_HIP75458_mesh_R (Johnson)_1.5s_mesh_10_images_stacked_0.fit')
+Path = os.path.join('/home/finn/visual_Studio_Code/data/2023-10-01/stacked/lightCor_HIP75458_mesh_B (Johnson)_15.0s_mesh_10_images_stacked_0.fit')
 hdul = fits.open(Path)
 image=hdul[0].data
 header=hdul[0].header
@@ -34,7 +34,14 @@ ax.set_title(f"{date}_{os.path.splitext(Path)[0][63:]}")
 show_image(image, fig=fig, ax=ax)
 fig.canvas.mpl_connect('button_press_event', onclick)  # Connect the onclick function to mouse click events
 
+plt.subplots_adjust(left=0, bottom=0, right=0.7, top=1) #zoom in
 plt.show()
+
+# for defocused
+zoom_removed = [clicked_positions[i] for i in range(len(clicked_positions)) if i % 2 == 1]
+#print("positions_faint = ", zoom_removed)
+
+# for mesh
 print("bright_positions=", clicked_positions[1:]) #remove first entry (zooming)
 
 '''
