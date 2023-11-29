@@ -8,8 +8,9 @@ from plotting import show_image
 from saving import save_image
 
 # change path here#
-curpath = "/home/finn/visual_Studio_Code/data/2023-09-04"
+curpath = "/home/finn/visual_Studio_Code/data/2023-09-11"
 #curpath =  "/home/fmahnken/PycharmProjects/data/test_data"
+########################### Attention: if you run the code multiple times, please empty lightcor first, because saving function dont overwrite
 
 # 0. define Important functions
 def loadImages(folder_name):
@@ -162,6 +163,7 @@ for i, fits_file in enumerate(lightFiles):
     masterDarkFrame = masterDarkFrames[nearest_exptime_master_dark]
     correction_factor = exptime / nearest_exptime_master_dark  # dark should have the same exptime as light
     if filter_value not in masterFlatFrames:  # just skip image if there is no flat with same filter
+        print(f'Flats with Filter: {filter_value} are missing for correction')
         continue
     masterFlat = masterFlatFrames[filter_value]
     corrected_image = (image - masterBias - masterDarkFrame * correction_factor) / masterFlat
