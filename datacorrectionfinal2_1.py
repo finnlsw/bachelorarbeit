@@ -8,7 +8,7 @@ from plotting import show_image
 from saving import save_image
 
 #change path here#
-curpath = "/home/finn/visual_Studio_Code/data/2023-09-26"
+curpath = "/home/fmahnken/data/2023-09-25"
 #curpath =  "/home/finn/PycharmProjects/data/2023-08-11"
 
 # 0. define Important functions
@@ -63,6 +63,7 @@ for i, fits_file in enumerate(darkFiles):
 
 for exptime, dark_frames in masterDarkFrames.items():
     masterDarkFrames[exptime] = np.median(dark_frames, axis=0)
+    print(exptime, np.mean(masterDarkFrames[exptime]))
 
 
 #3. Flat

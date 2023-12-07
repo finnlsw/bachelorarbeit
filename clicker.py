@@ -2,11 +2,13 @@ import os
 from astropy.io import fits
 from plotting import show_image
 from saving import save_image
-from matplotlib import pyplot as plt
+from matplotlib import pyplot 
+import matplotlib.pyplot as plt
 
 
 
-Path = os.path.join('/home/finn/visual_Studio_Code/data/2023-10-01/stacked/lightCor_HIP75458_mesh_B (Johnson)_15.0s_mesh_10_images_stacked_0.fit')
+# Path = os.path.join('/home/finn/visual_Studio_Code/data/2023-10-01/stacked/lightCor_HIP75458_mesh_B (Johnson)_15.0s_mesh_10_images_stacked_0.fit')
+Path = os.path.join('/home/fmahnken/data//2023-10-01/stacked/lightCor_HIP102488_mesh_R (Johnson)_6.0s_10_images_stacked_0.fit')
 hdul = fits.open(Path)
 image=hdul[0].data
 header=hdul[0].header
@@ -42,7 +44,7 @@ zoom_removed = [clicked_positions[i] for i in range(len(clicked_positions)) if i
 #print("positions_faint = ", zoom_removed)
 
 # for mesh
-print("bright_positions=", clicked_positions[1:]) #remove first entry (zooming)
+print("clicked positions=", clicked_positions[1:]) #remove first entry (zooming)
 
 '''
 folder_path = '/home/finn/visual_Studio_Code/data/2023-09-25/stacked/'

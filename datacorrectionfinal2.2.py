@@ -8,7 +8,11 @@ from plotting import show_image
 from saving import save_image
 
 # change path here#
+<<<<<<< HEAD
 curpath = "/home/finn/visual_Studio_Code/data/2023-09-11"
+=======
+curpath = "/home/fmahnken/data/2023-09-25"
+>>>>>>> 3c3a95c (new stacking try)
 #curpath =  "/home/fmahnken/PycharmProjects/data/test_data"
 ########################### Attention: if you run the code multiple times, please empty lightcor first, because saving function dont overwrite
 
@@ -46,11 +50,11 @@ def loadImages(folder_name):
 # 1. Bias
 biasImages, biasHeaders = loadImages('BIAS')
 masterBias = np.median(biasImages, axis=2).astype(np.float32)
-print("bias",np.mean(masterBias))
+#print("bias",np.mean(masterBias))
 
 # 2. Dark
 darkImages, darkHeaders = loadImages('DARK')
-darkImages -= masterBias[:, :, np.newaxis] ###correct later
+darkImages -= masterBias[:, :, np.newaxis] # substracting masterbias (newaxis: expands bias to have the same shape as darks, to substract it)
 
 
 #darkPath = os.path.join(curpath, 'DARK')
