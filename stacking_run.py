@@ -9,18 +9,14 @@ from stacking import stack_images
 from datetime import datetime
 
 
-base_path = "/home/finn/visual_Studio_Code/data/2023-09-26/" ####change here for different pc
-#base_path = "/home/fmahnken/PycharmProjects/data/2023-09-25/"
-input_path = os.path.join(base_path,"lightCor")
-output_path= base_path+"stacked"
+file_path = '/home/finn/visual_Studio_Code/data/2023-10-01/lightCor/lightCor_HIP102488_mesh_' #put filename without exptime,nr and .fit here
+exptimeList=[2.0,6.0] #stack exptimes seperatly in same loop
+batch_size = 10 # adjust desired number of images for one stack
 
-
-input_files = glob.glob(os.path.join(input_path, 'lightCor_HIP102488_defocused_B (Johnson)*.fit')) #put filename without exptime and nr here
-print('Number of input files:', len(input_files), '<- if zero check path/filename')
-exptimeList=[1.5] #stack exptimes seperatly in same loop
-batch_size = 25 # adjust desired number of images to stack
+output_path= file_path[:46]+"stacked" #change number for different pc
+input_files = glob.glob(os.path.join(file_path + '*.fit')) 
+print('Number of input files:', len(input_files), '<- if zero check filepath')
 text= f"{batch_size}_images_stacked" 
-
 
 for exptime in exptimeList:
     input_files_with_exptime = [file for file in input_files if fits.getheader(file)['EXPTIME'] == exptime]
@@ -30,5 +26,5 @@ for exptime in exptimeList:
         save_image(output_path, stackedImage, stackedHeader, custom_text=text)
         print("success for batch",int(1+(i)/batch_size))
 
-print("finished code")
+print("finished stacking")
 
