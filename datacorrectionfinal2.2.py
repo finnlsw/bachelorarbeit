@@ -8,11 +8,7 @@ from plotting import show_image
 from saving import save_image
 
 # change path here#
-<<<<<<< HEAD
-curpath = "/home/finn/visual_Studio_Code/data/2023-09-11"
-=======
-curpath = "/home/fmahnken/data/2023-09-25"
->>>>>>> 3c3a95c (new stacking try)
+curpath = "/home/finn/visual_Studio_Code/data/2023-09-04/"
 #curpath =  "/home/fmahnken/PycharmProjects/data/test_data"
 ########################### Attention: if you run the code multiple times, please empty lightcor first, because saving function dont overwrite
 

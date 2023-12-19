@@ -5,8 +5,10 @@ import cv2
 from astropy.stats import sigma_clipped_stats, mad_std
 from astropy.table import Table
 from photutils import CircularAperture, CircularAnnulus, aperture_photometry, ApertureStats
-
-
+import glob
+import os
+from datetime import datetime
+from astropy.io import fits
 
 def filter_sources(positions, sources, min_separation=50.0, min_edge_distance=50.0):
     distances = cdist(positions, positions)
@@ -157,3 +159,17 @@ def determine_magnitudes(image, positions, star_radius, exptime):
         magnitude =  - (2.5 * np.log10(abs(row['aperture_sum'] - row['total_bkg']) / exptime))
         magnitudes.append(magnitude) #magnitudes here list
   return magnitudes 
+
+def import_images(input_path):
+    image_list, header_list, titles = [], [], []
+    files = glob.glob(os.path.join(input_path + '*.fit'))
+    files_list = [file for file in files]
+    files_list.sort(key=lambda file_path: datetime.strptime(fits.getheader(file_path).get('DATE-OBS', ''), '%Y-%m-%dT%H:%M:%S')) #sort by time
+    for file in files_list:
+        hdul = fits.open(file)
+        image_list.append(hdul[0].data)
+        header_list.append(hdul[0].header)
+        exptime = hdul[0].header["EXPTIME"]
+        titles.append(hdul[0].header['DATE-OBS'][:10] + os.path.splitext(os.path.basename(input_path))[0][8:]) #date + filename
+        hdul.close()
+    return image_list, header_list, titles, exptime
