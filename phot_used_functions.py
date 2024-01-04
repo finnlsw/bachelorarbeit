@@ -9,6 +9,7 @@ import glob
 import os
 from datetime import datetime
 from astropy.io import fits
+import astroalign as aa
 
 def filter_sources(positions, sources, min_separation=50.0, min_edge_distance=50.0):
     distances = cdist(positions, positions)
@@ -94,6 +95,31 @@ def determine_shift(imageList, referenceImage = None, wanted_index = None):
     return shifts
 
 
+def determine_shift_aa(imageList, referenceImage = None, wanted_index = None):
+    print('Number of images to process:', len(imageList))
+    shifts = []
+
+    if referenceImage is None:
+        if wanted_index is None:
+          wanted_index = len(imageList)//2
+        print('we use image: ',wanted_index,"from given list as reference image")
+        reference_image = imageList[wanted_index].astype(np.float32)
+    else:
+        reference_image = referenceImage.astype(np.float32)
+    
+    for i, image in enumerate(imageList):
+      if i == wanted_index: 
+        shifts.append((0,0)) #no shift for the reference image relativ to itself
+      else:
+        image = image.astype(np.float32)
+        #_, warp_matrix = cv2.findTransformECC(reference_image, image, warp_matrix, warp_mode, criteria)
+        transf, (source_list, target_list) = aa.find_transform(image, referenceImage)
+        print(transf)
+        shift_x, shift_y = transf[0, 2], transf[1, 2]
+        shifts.append((shift_x, shift_y))
+
+    return shifts
+
 # function to determine individual radii
 def determine_fwhm(data, positions,max_value=20):
     valid_positions = []
@@ -140,7 +166,7 @@ def determine_magnitudes(image, positions, star_radius, exptime):
     
   else:
     apertures = [CircularAperture(position, r=star_radius) for position in positions]
-    annulus_apertures = [CircularAnnulus(position,r_in=star_radius+5, r_out=star_radius+15) for position in shifted_positions]
+    annulus_apertures = [CircularAnnulus(position,r_in=star_radius+5, r_out=star_radius+15) for position in positions]
     for aperture in apertures:
         aperture.plot(color="red", lw=1.0, alpha=0.5)
     for anulus in annulus_apertures:
@@ -162,14 +188,15 @@ def determine_magnitudes(image, positions, star_radius, exptime):
 
 def import_images(input_path):
     image_list, header_list, titles = [], [], []
-    files = glob.glob(os.path.join(input_path + '*.fit'))
-    files_list = [file for file in files]
+    file_names = glob.glob(os.path.join(input_path[:-6] + '*.fit')) 
+    files_list = [file for file in file_names]
     files_list.sort(key=lambda file_path: datetime.strptime(fits.getheader(file_path).get('DATE-OBS', ''), '%Y-%m-%dT%H:%M:%S')) #sort by time
     for file in files_list:
         hdul = fits.open(file)
         image_list.append(hdul[0].data)
         header_list.append(hdul[0].header)
-        exptime = hdul[0].header["EXPTIME"]
-        titles.append(hdul[0].header['DATE-OBS'][:10] + os.path.splitext(os.path.basename(input_path))[0][8:]) #date + filename
+        titles.append(os.path.basename(file)[:-4]) # Extracting filename without extension
+        exptime = header_list[0]["EXPTIME"] 
         hdul.close()
+    
     return image_list, header_list, titles, exptime

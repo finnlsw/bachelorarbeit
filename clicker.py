@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 
 # Path = os.path.join('/home/finn/visual_Studio_Code/data/2023-10-01/stacked/lightCor_HIP75458_mesh_B (Johnson)_15.0s_mesh_10_images_stacked_0.fit')
-Path = os.path.join('/home/fmahnken/data//2023-10-01/stacked/lightCor_HIP102488_mesh_R (Johnson)_6.0s_10_images_stacked_0.fit')
+Path = os.path.join('/home/finn/visual_Studio_Code/data/2023-09-26/stacked_old/lightCor_HIP100587_defocused_R (Johnson)_1.5s_25_images_stacked_5.fit')
 hdul = fits.open(Path)
 image=hdul[0].data
 header=hdul[0].header
@@ -41,10 +41,10 @@ plt.show()
 
 # for defocused
 zoom_removed = [clicked_positions[i] for i in range(len(clicked_positions)) if i % 2 == 1]
-#print("positions_faint = ", zoom_removed)
+print("positions_faint = ", zoom_removed)
 
 # for mesh
-print("clicked positions=", clicked_positions[1:]) #remove first entry (zooming)
+#print("clicked positions=", clicked_positions[1:]) #remove first entry (zooming)
 
 '''
 folder_path = '/home/finn/visual_Studio_Code/data/2023-09-25/stacked/'
