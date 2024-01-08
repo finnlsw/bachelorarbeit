@@ -37,19 +37,19 @@ plt.show()
 
 
 # File paths for the FITS images
-file_path_1 = '/home/finn/visual_Studio_Code/data/2023-09-25/stacked/lightCor_HIP100587_B (Johnson)_40.0s_10_images_stacked_0.fit'
-file_path_2 = '/home/finn/visual_Studio_Code/data/2023-09-25/stacked/lightCor_HIP100587_B (Johnson)_0.7s_10_images_stacked_0.fit'
+file_path_1 = '/home/finn/visual_Studio_Code/data/2023-09-04/LIGHT/HIP_100587-001_30.fit'
+file_path_2 = '/home/finn/visual_Studio_Code/data/2023-09-04/stacked_old/lightCor_HIP_100587_B (Johnson)_30.0s_long_short_10_images_stacked_0.fit'
 #file_path_3 = '/home/finn/visual_Studio_Code/data/2023-09-25/lightCor/lightCor_HIP100587_B (Johnson)_40.0s_6.fit'
 
-mean_stacked = open_image(file_path_1)
-median_stacked = open_image(file_path_2)
+image_1 = open_image(file_path_1)
+image_2 = open_image(file_path_2)
 #raw = open_image(file_path_3)
-fig, ax = plt.subplots(1,2)
+fig, ax = plt.subplots(1,2, figsize=(20,10))
 #show_image(raw, ax=ax[0], fig=fig)
-show_image(median_stacked, ax=ax[0], fig=fig)
-show_image(mean_stacked, ax=ax[1], fig=fig)
-ax[0].set_title('unstacked image')
-ax[1].set_title('stacked using median')
+show_image(image_1, ax=ax[0], fig=fig)
+show_image(image_2, ax=ax[1], fig=fig)
+ax[0].set_title('Raw image')
+ax[1].set_title('Corrected and stacked image')
 #ax[2].set_title('stacked using mean')
 #plt.tight_layout()
 plt.show()

@@ -4,22 +4,22 @@ from plotting import show_image
 from saving import save_image
 from matplotlib import pyplot 
 import matplotlib.pyplot as plt
+import pyperclip
 
 
 
-# Path = os.path.join('/home/finn/visual_Studio_Code/data/2023-10-01/stacked/lightCor_HIP75458_mesh_B (Johnson)_15.0s_mesh_10_images_stacked_0.fit')
-Path = os.path.join('/home/finn/visual_Studio_Code/data/2023-09-26/stacked_old/lightCor_HIP100587_defocused_R (Johnson)_1.5s_25_images_stacked_5.fit')
+# Path = os.path.join('/home/finn/visual_Studio_Code/data/2023-10-01/stacked/lightCor_HIP75458_mesh_B (Johnson)_1.5s_mesh_10_images_stacked_0.fit')
+#Path = os.path.join('/home/finn/visual_Studio_Code/data/2023-10-01/stacked/lightCor_HIP75458_mesh_R (Johnson)_15.0s_10_images_stacked_0.fit')
+Path = '/home/finn/visual_Studio_Code/data/2023-10-01/stacked/lightCor_HIP75458_mesh_B (Johnson)_15.0s_10_images_stacked_0.fit'
+
+series = 'ms' #type in df or ms for choosing every second pos or every pos execpt the 1. 
+
 hdul = fits.open(Path)
 image=hdul[0].data
 header=hdul[0].header
 date = hdul[0].header["DATE-OBS"][:10]
 
-'''
-fig,ax = plt.subplots(1,1,figsize=(10,10))
-ax.set_title(f"{date}_{os.path.splitext(Path)[0][63:]}")
-show_image(image, fig=fig, ax=ax)
-plt.show()
-'''
+
 
 
 clicked_positions = []
@@ -39,12 +39,14 @@ fig.canvas.mpl_connect('button_press_event', onclick)  # Connect the onclick fun
 plt.subplots_adjust(left=0, bottom=0, right=0.7, top=1) #zoom in
 plt.show()
 
-# for defocused
-zoom_removed = [clicked_positions[i] for i in range(len(clicked_positions)) if i % 2 == 1]
-print("positions_faint = ", zoom_removed)
+if series == 'df':
+    zoom_removed = [clicked_positions[i] for i in range(len(clicked_positions)) if i % 2 == 1]
+    print("positions_faint = ", zoom_removed, " (already copied to clipboard)")
+    pyperclip.copy(str(zoom_removed))
 
-# for mesh
-#print("clicked positions=", clicked_positions[1:]) #remove first entry (zooming)
+if series == 'ms' :
+    print("clicked positions=", clicked_positions[1:], " (already copied to clopboard)") #remove first entry (zooming)
+    pyperclip.copy(str(clicked_positions[1:]))
 
 '''
 folder_path = '/home/finn/visual_Studio_Code/data/2023-09-25/stacked/'

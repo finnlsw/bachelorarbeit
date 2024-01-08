@@ -95,30 +95,35 @@ def determine_shift(imageList, referenceImage = None, wanted_index = None):
     return shifts
 
 
-def determine_shift_aa(imageList, referenceImage = None, wanted_index = None):
+def determine_shift_aa(imageList, referenceImage=None, wanted_index=None):
     print('Number of images to process:', len(imageList))
     shifts = []
-
+    print('Function not finished, results not reliable')
     if referenceImage is None:
         if wanted_index is None:
-          wanted_index = len(imageList)//2
-        print('we use image: ',wanted_index,"from given list as reference image")
+            wanted_index = len(imageList) // 2
+        print('Using image:', wanted_index, "from given list as the reference image")
         reference_image = imageList[wanted_index].astype(np.float32)
     else:
         reference_image = referenceImage.astype(np.float32)
-    
+
     for i, image in enumerate(imageList):
-      if i == wanted_index: 
-        shifts.append((0,0)) #no shift for the reference image relativ to itself
-      else:
-        image = image.astype(np.float32)
-        #_, warp_matrix = cv2.findTransformECC(reference_image, image, warp_matrix, warp_mode, criteria)
-        transf, (source_list, target_list) = aa.find_transform(image, referenceImage)
-        print(transf)
-        shift_x, shift_y = transf[0, 2], transf[1, 2]
-        shifts.append((shift_x, shift_y))
+        if i == wanted_index:
+            shifts.append((0, 0))  # no shift for the reference image relative to itself
+        else:
+            try:
+                image = image.astype(np.float32)
+                transf, (source_list, target_list) = aa.find_transform(image, reference_image)
+                print("Transformation:", transf)
+                # Check specific transformation parameters or values here
+                print(transf.translation)
+                shifts.append((transf.translation[0], transf.translation[1]))  # or any other relevant parameters
+            except Exception as e:
+                print(f"Error processing image {i}: {e}")
+                shifts.append(None)  # Append a placeholder if there's an error for better error tracking
 
     return shifts
+
 
 # function to determine individual radii
 def determine_fwhm(data, positions,max_value=20):
@@ -195,7 +200,7 @@ def import_images(input_path):
         hdul = fits.open(file)
         image_list.append(hdul[0].data)
         header_list.append(hdul[0].header)
-        titles.append(os.path.basename(file)[:-4]) # Extracting filename without extension
+        titles.append(f'{hdul[0].header["DATE-OBS"][:10]}_{os.path.basename(file)[9:-4]}') # Extracting filename without extension
         exptime = header_list[0]["EXPTIME"] 
         hdul.close()
     
