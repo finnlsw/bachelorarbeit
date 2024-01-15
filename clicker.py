@@ -10,7 +10,11 @@ import pyperclip
 
 # Path = os.path.join('/home/finn/visual_Studio_Code/data/2023-10-01/stacked/lightCor_HIP75458_mesh_B (Johnson)_1.5s_mesh_10_images_stacked_0.fit')
 #Path = os.path.join('/home/finn/visual_Studio_Code/data/2023-10-01/stacked/lightCor_HIP75458_mesh_R (Johnson)_15.0s_10_images_stacked_0.fit')
-Path = '/home/finn/visual_Studio_Code/data/2023-10-01/stacked/lightCor_HIP75458_mesh_B (Johnson)_15.0s_10_images_stacked_0.fit'
+#Path = '/home/finn/visual_Studio_Code/data/2023-09-30/stacked_old/lightCor_HIP75458_B (Johnson)_14.0s_mesh_10_images_stacked_0.fit'
+#Path = '/home/finn/visual_Studio_Code/data/2023-09-30/stacked_old/lightCor_HIP100587_mesh_B (Johnson)_30.0s_mesh_10_images_stacked_0.fit'
+#Path = '/home/finn/visual_Studio_Code/data/2023-10-01/stacked_old/lightCor_HIP102488_mesh_B (Johnson)_2.0s_10_images_stacked_0.fit'
+#Path = '/home/finn/visual_Studio_Code/data/2023-10-01/stacked_old/lightCor_HIP102488_mesh_R (Johnson)_6.0s_10_images_stacked_0.fit'
+Path = '/home/finn/visual_Studio_Code/data/2024-01-11/stacked_median/lightCor_HIP100587_ms_R_35_R (Johnson)_35.0s_10_images_stacked_0.fit'
 
 series = 'ms' #type in df or ms for choosing every second pos or every pos execpt the 1. 
 
@@ -33,7 +37,7 @@ def onclick(event):
 
 fig, ax = plt.subplots(1, 1, figsize=(10, 10))
 ax.set_title(f"{date}_{os.path.splitext(Path)[0][63:]}")
-show_image(image, fig=fig, ax=ax)
+show_image(image, fig=fig, ax=ax, percl=99.6)
 fig.canvas.mpl_connect('button_press_event', onclick)  # Connect the onclick function to mouse click events
 
 plt.subplots_adjust(left=0, bottom=0, right=0.7, top=1) #zoom in
@@ -45,7 +49,7 @@ if series == 'df':
     pyperclip.copy(str(zoom_removed))
 
 if series == 'ms' :
-    print("clicked positions=", clicked_positions[1:], " (already copied to clopboard)") #remove first entry (zooming)
+    print("clicked positions=", clicked_positions[1:], " (already copied to clipboard)") #remove first entry (zooming)
     pyperclip.copy(str(clicked_positions[1:]))
 
 '''

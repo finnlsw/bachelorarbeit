@@ -6,9 +6,10 @@ import os
 import shutil
 from plotting import show_image
 from saving import save_image
+import sys
 
 # change path here#
-curpath = "/home/finn/visual_Studio_Code/data/2023-09-04/"
+curpath = "/home/finn/visual_Studio_Code/data/2023-09-26/"
 #curpath =  "/home/fmahnken/PycharmProjects/data/test_data"
 ########################### Attention: if you run the code multiple times, please empty lightcor first, because saving function dont overwrite
 
@@ -22,7 +23,6 @@ def loadImages(folder_name):
     target_size = 2048
     images = np.zeros((target_size, target_size, num_files),
                       dtype=np.float32)  # float32 because orignial files are in int16
-    # use binning to compress larger images (e.g. 4096) to 2048
     for i in range(num_files):
         with fits.open(image_list[i]) as hdul:
             header_list.append(hdul[0].header)
@@ -30,7 +30,7 @@ def loadImages(folder_name):
             naxis2 = hdul[0].header.get('NAXIS2', -1)
             if naxis1 == target_size and naxis2 == target_size:
                 images[:, :, i] = hdul[0].data
-            elif naxis1 > 0 and naxis2 > 0:
+            else: #rescale image if false size e.g. from binning 1,1
                 binning_factor = max(naxis1 // target_size, naxis2 // target_size)
                 binned_data = hdul[0].data.reshape(naxis2 // binning_factor, binning_factor, naxis1 // binning_factor,
                                                    binning_factor).mean(1).mean(2)
@@ -46,7 +46,7 @@ def loadImages(folder_name):
 # 1. Bias
 biasImages, biasHeaders = loadImages('BIAS')
 masterBias = np.median(biasImages, axis=2).astype(np.float32)
-#print("bias",np.mean(masterBias))
+print("Median of masterbias:",np.median(masterBias))
 
 # 2. Dark
 darkImages, darkHeaders = loadImages('DARK')
@@ -54,16 +54,9 @@ darkImages -= masterBias[:, :, np.newaxis] # substracting masterbias (newaxis: e
 
 
 #darkPath = os.path.join(curpath, 'DARK')
-#darkFiles = [file for file in os.listdir(darkPath) if file.endswith('.fit') or file.endswith('fits')]
+
 masterDarkFrames = {}  # Dictionary to store master dark frames
 
-'''
-for i, fits_file in enumerate(darkFiles):
-    fits_path = os.path.join(darkPath, fits_file)
-    hdul = fits.open(fits_path)
-    header = hdul[0].header
-    exptime = header['EXPTIME']
-'''
 for i in range (len(darkHeaders)):
     exptime = darkHeaders[i]["EXPTIME"]
     if exptime not in masterDarkFrames:
@@ -73,7 +66,8 @@ for i in range (len(darkHeaders)):
 
 for exptime, dark_frames in masterDarkFrames.items():
     masterDarkFrames[exptime] = np.median(dark_frames, axis=0)
-    print(exptime, np.mean(masterDarkFrames[exptime]))
+    print('median of master dark (after bias substracted) with exptime:', exptime,':', np.median(masterDarkFrames[exptime]))
+
 
 '''
 fig, ax = plt.subplots(2, 2, figsize=(20, 20))
@@ -83,7 +77,6 @@ show_image(masterDarkFrames[30.0],ax=ax[1,0], fig=fig)
 show_image(masterDarkFrames[60.0],ax=ax[1,1], fig=fig)
 plt.show()
 '''
-
 
 # 3. Flat
 flatImages, flatHeaders = loadImages('FLAT')
@@ -121,12 +114,35 @@ for filter_value, master_flat in masterFlatFrames.items():
     print(f"flats Filter: {filter_value}")
 for exptime, master_dark in masterDarkFrames.items():
     print(f"darks Exposure Time: {exptime}")
+
+'''first_dark = next(iter(masterDarkFrames)) 
 first_filter = next(iter(masterFlatFrames))  # get first flat filter from library
-first_dark = next(iter(masterDarkFrames))  # get first dark exptime from library
+ # get first dark exptime from library
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 10))
 show_image(masterFlatFrames[first_filter], ax=ax1, fig=fig)
+ax1.set_title(f'Masterflat for filter {first_filter}')
 show_image(masterDarkFrames[first_dark], ax=ax2, fig=fig)
+ax2.set_title(f'Masterdark for exptime {first_dark}')
+plt.show()'''
+
+
+fig, axs = plt.subplots(2, len(masterDarkFrames))
+
+# Plot one masterdark image
+i = 0
+for exptime, dark_frames in masterDarkFrames.items():
+    show_image(dark_frames, ax=axs[0][i], fig=fig)
+    axs[0][i].set_title(f'Masterdark for exptime {exptime}')
+    i = i+1
+
+# Plot corrected flat images
+j = 0
+for filter_value, master_flat in masterFlatFrames.items():
+    show_image(master_flat, ax=axs[1][j], fig=fig)
+    axs[1][j].set_title(f'Masterflat for {filter_value}')
+    j= j+1
 plt.show()
+
 
 
 # 4. Image correction
@@ -206,6 +222,9 @@ corrected_image10 = fits.getdata(corrected_files[10])
 show_image(corrected_image10, ax=ax2, fig=fig)
 ax2.set_title('corrected_image10')
 plt.show()
+
+
+
 
 # XXXXXXXXXXXXXX waere cool wenn ich das wieder mit roh und korrigierem bild hinkriege.
 '''

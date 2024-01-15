@@ -11,28 +11,24 @@ def open_image(file_path):
         image = hdul[0].data  # Get image data
     return image
 
-'''
-file_paths = [
-    '/home/finn/visual_Studio_Code/data/2023-09-25/stacked/lightCor_HIP100587_B (Johnson)_40.0s_10_images_stacked_0.fit',
-    '/home/finn/visual_Studio_Code/data/2023-09-25/stacked/lightCor_HIP100587_B (Johnson)_40.0s_10_images_stacked_1.fit',
-    '/home/finn/visual_Studio_Code/data/2023-09-25/stacked/lightCor_HIP100587_B (Johnson)_40.0s_10_images_stacked_2.fit',
-    '/home/finn/visual_Studio_Code/data/2023-09-25/stacked/lightCor_HIP100587_B (Johnson)_40.0s_10_images_stacked_3.fit',
-    '/home/finn/visual_Studio_Code/data/2023-09-25/stacked/lightCor_HIP100587_B (Johnson)_40.0s_10_images_stacked_4.fit',
-    '/home/finn/visual_Studio_Code/data/2023-09-25/stacked/lightCor_HIP100587_B (Johnson)_40.0s_10_images_stacked_5.fit',
-    '/home/finn/visual_Studio_Code/data/2023-09-25/stacked/lightCor_HIP100587_B (Johnson)_40.0s_10_images_stacked_6.fit'
-]
 
-fig, ax = plt.subplots(2, 4)
+file_paths = [
+                '/home/finn/visual_Studio_Code/data/2023-09-26/test/lightCor__B (Johnson)_10.0s_0.fit',
+                '/home/finn/visual_Studio_Code/data/2023-09-26/test/lightCor__B (Johnson)_10.0s_1.fit',
+                '/home/finn/visual_Studio_Code/data/2023-09-26/test/lightCor__B (Johnson)_10.0s_2.fit'
+            ]
+
+titles = ['PI.02 Cygni_B_10s_0.2mm', 'PI.02 Cygni_B_10s_0.5mm', 'PI.02 Cygni_B_10s_1.0mm']
+
+fig, ax = plt.subplots(1, 3, figsize=(21,7))
 for i, path in enumerate(file_paths):
     image = open_image(path)
-    if i < 4:
-        show_image(image, ax=ax[0,i], fig=fig)
-    else:
-        show_image(image, ax=ax[1,i-5], fig=fig)
-
-        
-
+    show_image(image, ax=ax[i], fig=fig, percl=99.5)
+    ax[i].set_title(f'2023-09-26_{titles[i]}')
+plt.tight_layout()
+plt.savefig('/home/finn/Pictures/Different_mesh_size_B.png')
 plt.show()
+
 '''
 
 
@@ -56,3 +52,4 @@ plt.show()
 
 
 #### todo search same image in stacked old, new and with other method (aa)
+'''

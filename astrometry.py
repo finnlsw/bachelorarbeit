@@ -68,7 +68,7 @@ def plate_solve(path):
 
 
 #example usage: 
-path = "/home/finn/visual_Studio_Code/data/2023-10-01/test/"
+path= "/home/finn/visual_Studio_Code/data/2024-01-11/stacked/"
 plate_solve(path)
 
 

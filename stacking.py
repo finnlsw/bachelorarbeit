@@ -2,7 +2,7 @@ import numpy as np
 from astropy.io import fits
 import cv2
 
-def stack_images(inputPath, exptime, mean = True):
+def stack_images(inputPath, exptime, mode):
     # import images
     imageList = []
     headerList = []
@@ -31,8 +31,8 @@ def stack_images(inputPath, exptime, mean = True):
         aligned_image = cv2.warpAffine(image, warp_matrix, reference_image.shape[::-1],
                                        flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP)
         aligned_images.append(aligned_image)
-    if mean == True:
+    if mode == 'mean':
         final_stacked_image = np.mean(aligned_images, axis=0) # use mean by default to keep linearity
-    else:
+    if mode == 'median':
         final_stacked_image = np.median(aligned_images, axis=0) # median for testing also possible (more robust to outliers)
     return final_stacked_image, headerList[len(imageList) // 2]
