@@ -31,7 +31,7 @@ def plate_solve(path):
 
 
 def plate_solve(path):
-    input_files = glob.glob(os.path.join(path + '*.fit')) 
+    input_files = glob.glob(os.path.join(path, '*.fit')) 
     ast = AstrometryNet()
     ast.api_key = 'fpcodtulvgmteoid'  # XXXXXXXXXXXXXXXXX change personal api key at end for other persons XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     
@@ -68,7 +68,7 @@ def plate_solve(path):
 
 
 #example usage: 
-path= "/home/finn/visual_Studio_Code/data/2024-01-11/stacked/"
+path= "/home/finn/visual_Studio_Code/data/2024-01-10/image_for_CMD"
 plate_solve(path)
 
 

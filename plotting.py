@@ -5,9 +5,9 @@ from astropy.nddata.blocks import block_reduce
 
 
 def show_image(image,
-               percl=99, percu=None, is_mask=False,
+               percl=99.5, percu=None, is_mask=False,
                figsize=(10, 10),
-               cmap='gray', log=False, clip=True,
+               cmap='gray', fs_colorbar=15, log=False, clip=True,
                show_colorbar=True, show_ticks=True,
                fig=None, ax=None, input_ratio=None):
     if percu is None: # determine percentile range of the stretch
@@ -45,6 +45,9 @@ def show_image(image,
     im = ax.imshow(reduced_data, origin='lower',
                    cmap=cmap, extent=extent, aspect='equal', **scale_args)
     if show_colorbar:
-        fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+        #fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04 )
+        cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+        # Set the size of the colorbar tick labels
+        cbar.ax.tick_params(labelsize=fs_colorbar) 
     if not show_ticks:
         ax.tick_params(labelbottom=False, labelleft=False, labelright=False, labeltop=False)

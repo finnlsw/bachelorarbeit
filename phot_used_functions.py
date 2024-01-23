@@ -153,13 +153,13 @@ def determine_fwhm(data, positions,max_value=20):
 
 
 
-def determine_magnitudes(image, positions, star_radius, exptime):
+def determine_magnitudes(image, positions, star_radius, exptime, lw=1.0, alpha=0.5, aperture_color="red", annulus_color="blue"):
   #for bright star
   if len(positions) == 1:
     aperture = CircularAperture(positions, r=star_radius)
     annulus_aperture = CircularAnnulus(positions, r_in=star_radius+15, r_out=star_radius+45)
-    aperture.plot(color='red', lw=1.0, alpha=0.5);
-    annulus_aperture.plot(color="blue", lw=1.0, alpha=0.5);
+    aperture.plot(color=aperture_color, lw=lw, alpha=alpha);
+    annulus_aperture.plot(color=annulus_color, lw=lw, alpha=alpha);
     phot_table = aperture_photometry(image, aperture, method='subpixel', subpixels=5)
     aperstats = ApertureStats(image, annulus_aperture)
     bkg = aperstats.median
@@ -173,9 +173,9 @@ def determine_magnitudes(image, positions, star_radius, exptime):
     apertures = [CircularAperture(position, r=star_radius) for position in positions]
     annulus_apertures = [CircularAnnulus(position,r_in=star_radius+5, r_out=star_radius+15) for position in positions]
     for aperture in apertures:
-        aperture.plot(color="red", lw=1.0, alpha=0.5)
+        aperture.plot(color=aperture_color, lw=lw, alpha=alpha)
     for anulus in annulus_apertures:
-        anulus.plot(color="blue", lw=1.0, alpha=0.5)
+        anulus.plot(color=annulus_color, lw=lw, alpha=alpha)
     phot_table_faint = Table(names=('id', 'xcenter', 'ycenter', 'aperture_sum', 'total_bkg'), dtype=('int', 'float', 'float', 'float', 'float'))
     for j in range(len(apertures)):
         aperstats = ApertureStats(image, annulus_apertures[j])
