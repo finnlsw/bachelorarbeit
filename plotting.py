@@ -7,9 +7,10 @@ from astropy.nddata.blocks import block_reduce
 def show_image(image,
                percl=99.5, percu=None, is_mask=False,
                figsize=(10, 10),
-               cmap='gray', fs_colorbar=15, log=False, clip=True,
+               cmap='gray', fs_colorbar=15, arrow_color='white',log=False, clip=True,
                show_colorbar=True, show_ticks=True,
-               fig=None, ax=None, input_ratio=None):
+               fig=None, ax=None, input_ratio=None,
+               scale=False, north_arrow=False, east_arrow=False):
     if percu is None: # determine percentile range of the stretch
         percu = percl
         percl = 100 - percl
@@ -51,3 +52,28 @@ def show_image(image,
         cbar.ax.tick_params(labelsize=fs_colorbar) 
     if not show_ticks:
         ax.tick_params(labelbottom=False, labelleft=False, labelright=False, labeltop=False)
+    
+    if scale:
+        scale_length_pix = 2*2048 / 22.63  # Assuming square image
+        d = 100
+        p = 175
+        h = 90
+
+        ax.plot([p - scale_length_pix/2, p + scale_length_pix/2], [h, h], color=arrow_color, lw=1.5)
+        ax.plot([p - scale_length_pix/2, p-scale_length_pix/2], [h-15,h+15], color=arrow_color, lw=1.5)
+        ax.plot([p +scale_length_pix/2, p+scale_length_pix/2], [h-15,h+15], color=arrow_color, lw=1.5)
+        ax.text(p , h + 50, "2 arcmin", color=arrow_color, ha='center', va='center', fontsize=fs_colorbar)
+    
+    # Indicate North cross
+    if north_arrow:
+        ax.arrow(image.shape[1] - p -20, h, 0, d, head_width=15, head_length=30, fc=arrow_color, ec=arrow_color)
+        ax.text(image.shape[1] - p -20 , h+d+50, 'N', color=arrow_color, ha='center', va='center', fontsize=fs_colorbar)
+    
+    # Indicate East arrow
+    if east_arrow:
+        ax.arrow(image.shape[1] - p -20, h, d, 0, head_width=15, head_length=30, fc=arrow_color, ec=arrow_color)
+        ax.text(image.shape[1] - p+d+30, h, 'E', color=arrow_color, ha='center', va='center', fontsize=fs_colorbar)
+    
+    # Rest of the code remains unchanged
+    
+    # Rest of the code remains unchanged

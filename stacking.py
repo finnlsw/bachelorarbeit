@@ -31,7 +31,7 @@ def stack_images(inputPath, exptime, mode):
         aligned_image = cv2.warpAffine(image, warp_matrix, reference_image.shape[::-1],
                                        flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP)
         aligned_images.append(aligned_image)
-    if mode == 'mean':
+    if mode == 'mean':      
         final_stacked_image = np.mean(aligned_images, axis=0) # use mean by default to keep linearity
     if mode == 'median':
         final_stacked_image = np.median(aligned_images, axis=0) # median for testing also possible (more robust to outliers)

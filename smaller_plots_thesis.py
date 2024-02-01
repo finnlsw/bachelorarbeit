@@ -15,19 +15,21 @@ def open_image(file_path):
 # df example
 '''image = open_image('/home/finn/visual_Studio_Code/data/2024-01-11/stacked/lightCor_HIP75458_df_B_3_5s_B (Johnson)_3.5s_50_images_stacked_0.fit')
 fig, ax = plt.subplots(1,1)
-show_image(image, ax=ax, fig=fig, percl=99.7, show_colorbar = False, show_ticks=False, cmap = 'gray_r' )
+show_image(image, ax=ax, fig=fig, percl=99.7, show_colorbar = False, show_ticks=False, cmap = 'gray')
 
 # Remove ticks
 ax.set_xticks([])
 ax.set_yticks([])
 fig.set_size_inches(9, 9)
 plt.tight_layout()
+plt.savefig('/home/finn/Pictures/example_df_HIP75458_11_01.png')
 plt.show()'''
 
 
 #mesh comarison
-'''file_paths_B = ['/home/finn/visual_Studio_Code/data/2023-09-26/test/lightCor__B (Johnson)_10.0s_0.fit',
-                '/home/finn/visual_Studio_Code/data/2023-09-26/test/lightCor__B (Johnson)_10.0s_1.fit',                '/home/finn/visual_Studio_Code/data/2023-09-26/test/lightCor__B (Johnson)_10.0s_2.fit']
+file_paths_B = ['/home/finn/visual_Studio_Code/data/2023-09-26/test/lightCor__B (Johnson)_10.0s_0.fit',
+                '/home/finn/visual_Studio_Code/data/2023-09-26/test/lightCor__B (Johnson)_10.0s_1.fit',                
+                '/home/finn/visual_Studio_Code/data/2023-09-26/test/lightCor__B (Johnson)_10.0s_2.fit']
 
 file_paths_R = ['/home/finn/visual_Studio_Code/data/2023-09-26/test/lightCor__R (Johnson)_10.0s_0.fit',
                 '/home/finn/visual_Studio_Code/data/2023-09-26/test/lightCor__R (Johnson)_10.0s_1.fit',
@@ -38,14 +40,13 @@ fs=15 #fontsize
 for i in range(3):
     image_B = open_image(file_paths_B[i])
     image_R = open_image(file_paths_R[i])
-    show_image(image_B, ax=ax[i][0], fig=fig, percl=99.6, show_colorbar = False, show_ticks=False)
-    show_image(image_R, ax=ax[i][1], fig=fig, percl=99.6, show_colorbar = False, show_ticks=False)
+    show_image(image_B, ax=ax[i][0], fig=fig, percl=99.6, fs_colorbar=9.5, show_colorbar = False, show_ticks=False, scale=True, north_arrow=True, east_arrow=True)
+    show_image(image_R, ax=ax[i][1], fig=fig, percl=99.6, fs_colorbar=9.5, show_colorbar = False, show_ticks=False, scale=True, north_arrow=True, east_arrow=True)
 ax[0][0].set_title('B filter', fontsize = fs)
 ax[0][1].set_title('R filter', fontsize = fs)
 ax[0][0].set_ylabel('0.2 mm', fontsize = fs, rotation=0)
 ax[1][0].set_ylabel('0.5 mm', fontsize = fs, rotation=0)
 ax[2][0].set_ylabel('1.0 mm', fontsize = fs, rotation=0)
-
 
 #plt.subplots_adjust(wspace=-0.8, hspace=0.1)
 fig.set_size_inches(9, 11)
@@ -57,7 +58,7 @@ for row in ax:
 for i in range(3):
     ax[i][0].yaxis.set_label_coords(-0.2, 0.5)
 plt.tight_layout()
-plt.savefig('/home/finn/Pictures/Different_mesh_sizes.png')'''
+plt.savefig('/home/finn/Pictures/Different_mesh_sizes.png')
 
 
 
@@ -93,24 +94,24 @@ plt.savefig('/home/finn/Pictures/Different_mesh_sizes.png')'''
 determine_fwhm(image_list_short[1], pos_br_mean[1])'''
 
 
-# File paths for the FITS images
-file_path_1 = '/home/finn/visual_Studio_Code/data/2023-09-04/LIGHT/HIP_100587-001_30.fit'
+# raw vs corr
+'''file_path_1 = '/home/finn/visual_Studio_Code/data/2023-09-04/LIGHT/HIP_100587-001_30.fit'
 file_path_2 = '/home/finn/visual_Studio_Code/data/2023-09-04/stacked_old/lightCor_HIP_100587_B (Johnson)_30.0s_long_short_10_images_stacked_0.fit'
-#file_path_3 = '/home/finn/visual_Studio_Code/data/2023-09-25/lightCor/lightCor_HIP100587_B (Johnson)_40.0s_6.fit'
 file_list = [file_path_1, file_path_2]
 
 #raw = open_image(file_path_3)
 fig, ax = plt.subplots(1,2, figsize=(20,10))
 for i in range (len(file_list)):
     image = open_image(file_list[i])
-    show_image(image, ax=ax[i], fig=fig, percl= 99.5, fs_colorbar=16, show_ticks=False)
-    #ax[i].set_yticks([])
-    #ax[i].set_xticks([])
+    if i == 0: 
+        show_image(image, ax=ax[i], fig=fig, percl= 99.5, fs_colorbar=16, show_ticks=False,  scale=True, north_arrow=True, east_arrow=True)
+    else: 
+        show_image(image, ax=ax[i], fig=fig, percl= 99.5, fs_colorbar=16, show_ticks=False)
 
 plt.tight_layout()
 plt.subplots_adjust(wspace=0.21)
-#plt.savefig('/home/finn/Pictures/raw_vs_corr+stacked.png')
-plt.show()
+plt.savefig('/home/finn/Pictures/raw_vs_corr+stacked.png')
+#plt.show()'''
 
 
 #### todo search same image in stacked old, new and with other method (aa)
